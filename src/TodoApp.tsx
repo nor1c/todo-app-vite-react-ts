@@ -40,7 +40,7 @@ export default function TodoApp() {
   }
 
   return (
-    <div className="gap-2 items-center p-6 mx-auto mt-6 w-2/4 text-center bg-gray-100 rounded-md">
+    <div className="gap-2 items-center p-6 mx-auto mt-6 w-full lg:w-2/4 text-center bg-gray-100 rounded-md">
       <h2 className="text-lg font-semibold">Simple Todo App</h2>
       
       <div className='flex flex-col gap-2 mt-10'>
