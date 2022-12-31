@@ -8,8 +8,10 @@ const AddTodo: React.FC<{
   const [newTodo, setNewTodo] = useState<string>('')
 
   const addNewTodo = () => {
-    setNewTodo('')
-    onAdd(newTodo)
+    if (newTodo) {
+      setNewTodo('')
+      onAdd(newTodo)
+    }
   }
 
   return (
@@ -19,7 +21,9 @@ const AddTodo: React.FC<{
         value={newTodo}
         onChange={e => setNewTodo(e.target.value)}
         className="border-2 border-gray-200 p-2 rounded-md"
+        placeholder='Add new task here'
       />
+      
       <RegularButton
         text='Add'
         onClick={addNewTodo}

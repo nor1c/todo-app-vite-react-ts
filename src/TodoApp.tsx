@@ -4,33 +4,53 @@ import AddTodo from './AddTodo'
 import TaskList from './TaskList'
 import { ITodo } from './utils/todo'
 
+let id: number = 1
+
 export default function TodoApp() {
-  const [id, setId] = useState<number>(1)
   const [tasks, setTasks] = useState<ITodo[]>([])
 
   const handleNewTodo = (newTodo: string) => {
-    setId(id + 1)
-    
-    setTasks([
-      ...tasks,
-      {
-        id,
-        title: newTodo,
-        done: false
+    const isExist = tasks.some(task => task.title === newTodo)
+
+    if (!isExist) {
+      setTasks([
+        {
+          id: id++,
+          title: newTodo,
+          done: false
+        },
+        ...tasks,
+      ])
+    } else {
+      alert('Task exist')
+    }
+  }
+
+  const changeTaskStatus = (taskId: ITodo['id']) => {
+    setTasks(tasks.map(task => {
+      return task.id !== taskId ? task : {
+        ...task,
+        done: !task.done
       }
-    ])
+    }))
+  }
+
+  const deleteTask = (taskId: ITodo['id']) => {
+    setTasks(tasks.filter(task => task.id !== taskId))
   }
 
   return (
-    <div className="gap-2 w-2/4 mx-auto rounded-md mt-6 bg-gray-100 p-6 items-center text-center">
+    <div className="gap-2 items-center p-6 mx-auto mt-6 w-2/4 text-center bg-gray-100 rounded-md">
       <h2 className="text-lg font-semibold">Simple Todo App</h2>
       
-      <div className='mt-10 flex flex-col gap-2'>
+      <div className='flex flex-col gap-2 mt-10'>
         <AddTodo
           onAdd={handleNewTodo}
         />
         <TaskList
           tasks={tasks}
+          changeTaskStatus={changeTaskStatus}
+          onDeleteTask={deleteTask}
         />
       </div>
     </div>
