@@ -27,6 +27,7 @@ const AddTodo: React.FC<{
       <RegularButton
         text='Add'
         onClick={addNewTodo}
+        buttonColor="bg-blue-600 hover:bg-blue-800"
       />
     </div>
   )

@@ -1,42 +1,90 @@
 import { useState } from 'react'
 
 import AddTodo from './AddTodo'
+import { RootState } from './stores'
+import {
+    addNewTask, deleteTaskFromState, updateTaskDetailFromState, updateTaskStatusFromState
+} from './stores/todo.store'
 import TaskList from './TaskList'
+import { useAppDispatch, useAppSelector } from './utils/app/hooks'
 import { ITodo } from './utils/todo'
 
-let id: number = 1
-
 export default function TodoApp() {
-  const [tasks, setTasks] = useState<ITodo[]>([])
+  const dispatch = useAppDispatch()
 
-  const handleNewTodo = (newTodo: string) => {
-    const isExist = tasks.some(task => task.title === newTodo)
+  // init data
+  const tasksState = useAppSelector((state: RootState) => state.taskList)
 
-    if (!isExist) {
-      setTasks([
-        {
-          id: id++,
-          title: newTodo,
-          done: false
-        },
-        ...tasks,
-      ])
-    } else {
-      alert('Task exist')
-    }
+  const [tasks, setTasks] = useState<ITodo[]>(tasksState)
+
+  // create a new task
+  const createNewTask = (newTask: string) => {
+    dispatch(
+      addNewTask({
+        id: crypto.randomUUID(),
+        title: newTask,
+        done: false
+      })
+    )
+
+    // ! using useState()
+    // const isExist = tasks.some(task => task.title === newTask)
+
+    // if (!isExist) {
+    //   setTasks([
+    //     {
+    //       id: id.current++,
+    //       title: newTask,
+    //       done: false
+    //     },
+    //     ...tasks,
+    //   ])
+    // } else {
+    //   alert('Task exist')
+    // }
   }
 
+  // change task status
   const changeTaskStatus = (taskId: ITodo['id']) => {
-    setTasks(tasks.map(task => {
-      return task.id !== taskId ? task : {
-        ...task,
-        done: !task.done
-      }
-    }))
+    dispatch(
+      updateTaskStatusFromState({
+        taskId
+      })
+    )
+
+    // ! useState()
+    // setTasks(tasks.map(task => {
+    //   return task.id !== taskId ? task : {
+    //     ...task,
+    //     done: !task.done
+    //   }
+    // }))
   }
 
+  // update task data
+  const updateTask = (taskData: ITodo) => {
+    dispatch(
+      updateTaskDetailFromState(taskData)
+    )
+
+    // setTasks(tasks.map(task => {
+    //   return task.id !== taskData.id ? task : {
+    //     ...task,
+    //     taskData
+    //   }
+    // }))
+  }
+
+  // delete task
   const deleteTask = (taskId: ITodo['id']) => {
-    setTasks(tasks.filter(task => task.id !== taskId))
+    dispatch(
+      deleteTaskFromState({
+        id: taskId
+      })
+    )
+
+    // ! useState()
+    // setTasks(tasks.filter(task => task.id !== taskId))
   }
 
   return (
@@ -45,11 +93,12 @@ export default function TodoApp() {
       
       <div className='flex flex-col gap-2 mt-10'>
         <AddTodo
-          onAdd={handleNewTodo}
+          onAdd={createNewTask}
         />
         <TaskList
-          tasks={tasks}
-          changeTaskStatus={changeTaskStatus}
+          tasks={tasksState}
+          onChangeTaskStatus={changeTaskStatus}
+          onUpdateTask={updateTask}
           onDeleteTask={deleteTask}
         />
       </div>

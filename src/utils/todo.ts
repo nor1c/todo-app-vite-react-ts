@@ -1,10 +1,14 @@
-export interface ITodo {
-  id: number
+export interface ITodoInput {
   title: string
+}
+
+export interface ITodo extends ITodoInput {
+  id: string
   done: boolean
 }
 
 export interface ITaskList {
-  changeTaskStatus: (taskId: ITodo['id']) => void,
+  onChangeTaskStatus: (taskId: ITodo['id']) => void
+  onUpdateTask: (taskData: ITodo) => void
   onDeleteTask: (taskId: ITodo['id']) => void
 }
