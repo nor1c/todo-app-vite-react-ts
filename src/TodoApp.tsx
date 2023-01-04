@@ -3,7 +3,8 @@ import { useState } from 'react'
 import AddTodo from './AddTodo'
 import { RootState } from './stores'
 import {
-    addNewTask, deleteTaskFromState, updateTaskDetailFromState, updateTaskStatusFromState
+    addNewTask, deleteTaskFromState, getNumberOfTasks, updateTaskDetailFromState,
+    updateTaskStatusFromState
 } from './stores/todo.store'
 import TaskList from './TaskList'
 import { useAppDispatch, useAppSelector } from './utils/app/hooks'
@@ -13,7 +14,8 @@ export default function TodoApp() {
   const dispatch = useAppDispatch()
 
   // init data
-  const tasksState = useAppSelector((state: RootState) => state.taskList)
+  const taskCounter = useAppSelector(getNumberOfTasks)
+  const tasksState = useAppSelector((state: RootState) => state.tasks.taskList)
 
   const [tasks, setTasks] = useState<ITodo[]>(tasksState)
 
@@ -47,9 +49,7 @@ export default function TodoApp() {
   // change task status
   const changeTaskStatus = (taskId: ITodo['id']) => {
     dispatch(
-      updateTaskStatusFromState({
-        taskId
-      })
+      updateTaskStatusFromState(taskId)
     )
 
     // ! useState()
@@ -78,9 +78,7 @@ export default function TodoApp() {
   // delete task
   const deleteTask = (taskId: ITodo['id']) => {
     dispatch(
-      deleteTaskFromState({
-        id: taskId
-      })
+      deleteTaskFromState(taskId)
     )
 
     // ! useState()
@@ -88,13 +86,16 @@ export default function TodoApp() {
   }
 
   return (
-    <div className="gap-2 items-center p-6 mx-auto mt-6 w-full lg:w-2/4 text-center bg-gray-100 rounded-md">
+    <div className="gap-2 items-center p-6 mx-auto mt-6 w-full text-center bg-gray-100 rounded-md lg:w-2/4">
       <h2 className="text-lg font-semibold">Simple Todo App</h2>
       
       <div className='flex flex-col gap-2 mt-10'>
-        <AddTodo
-          onAdd={createNewTask}
-        />
+        <div className='flex flex-row justify-between'>
+          <AddTodo
+            onAdd={createNewTask}
+          />
+          <span>{taskCounter.done} task{taskCounter.done > 1 ? 's' : ''} done out of {taskCounter.all} tasks, {taskCounter.unfinished} task{taskCounter.unfinished > 1 ? 's' : ''} unfinished</span>
+        </div>
         <TaskList
           tasks={tasksState}
           onChangeTaskStatus={changeTaskStatus}

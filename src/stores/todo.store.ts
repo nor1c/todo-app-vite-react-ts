@@ -1,6 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { ITodo } from '../utils/todo'
+import { RootState } from './'
 
 const initialTaskList: ITodo[] = [
   {
@@ -10,7 +11,7 @@ const initialTaskList: ITodo[] = [
   }
 ]
 
-export const tasksSlice = createSlice({
+export const taskStore = createSlice({
   name: 'tasks',
   initialState: {
     taskList: initialTaskList
@@ -19,9 +20,9 @@ export const tasksSlice = createSlice({
     addNewTask: (state, { payload }) => {
       state.taskList.unshift(payload)
     },
-    updateTaskStatusFromState: (state, { payload }) => {
+    updateTaskStatusFromState: (state, action: PayloadAction<ITodo['id']>) => {
       state.taskList = state.taskList.map(task => 
-        task.id !== payload.taskId ? 
+        task.id !== action.payload ? 
           task : 
           {
             ...task,
@@ -29,15 +30,15 @@ export const tasksSlice = createSlice({
           }
       )
     },
-    updateTaskDetailFromState: (state, { payload }) => {
+    updateTaskDetailFromState: (state, action: PayloadAction<ITodo>) => {
       state.taskList = state.taskList.map(task => 
-        task.id !== payload.id ? 
+        task.id !== action.payload.id ? 
           task :
-          payload
+          action.payload
       )
     },
-    deleteTaskFromState: (state, { payload }) => {
-      state.taskList = state.taskList.filter(task => task.id !== payload.id)
+    deleteTaskFromState: (state, action: PayloadAction<ITodo['id']>) => {
+      state.taskList = state.taskList.filter(task => task.id !== action.payload)
     }
   }
 })
@@ -47,6 +48,37 @@ export const {
   updateTaskStatusFromState,
   updateTaskDetailFromState,
   deleteTaskFromState
-} = tasksSlice.actions
+} = taskStore.actions
 
-export default tasksSlice.reducer
+export default taskStore.reducer
+
+// // non memoized
+// export function getNumberOfTasks(state: RootState) {
+//   console.log('getting non memoized task counter..')
+//   const totalTasks = state.tasks.taskList.length
+//   const totalFinishedTasks = state.tasks.taskList.filter(task => task.done === true).length
+//   const totalUnfinishedTasks = totalTasks-totalFinishedTasks
+
+//   return {
+//     all: totalTasks,
+//     done: totalFinishedTasks,
+//     unfinished: totalUnfinishedTasks
+//   }
+// }
+
+// memoizing with @reduxjs/toolkit.createSelector()
+export const getNumberOfTasks = createSelector(
+  (state: RootState) => state.tasks.taskList,
+  (tasks) => {
+    console.log('getting memoized task counter..')
+    const totalTasks = tasks.length
+    const totalFinishedTasks = tasks.filter(task => task.done === true).length
+    const totalUnfinishedTasks = totalTasks-totalFinishedTasks
+
+    return {
+      all: totalTasks,
+      done: totalFinishedTasks,
+      unfinished: totalUnfinishedTasks
+    }
+  }
+)
